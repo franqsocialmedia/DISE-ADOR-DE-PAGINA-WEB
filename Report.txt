@@ -1,0 +1,100 @@
+PROYECTO: Constructor de Páginas Web (motor propio)
+====================================================
+Versión actual: v1.0.0
+Última actualización: 28/08/2026
+
+1. OBJETIVO
+------------
+Construir un motor propio (sin frameworks externos) que permita crear páginas
+web desde cero, de forma visual, modular y personalizada. El usuario arma la
+página dividiendo un contenedor en espacios proporcionales y asignando a cada
+espacio un tipo de contenido (imagen, texto, video, slider, etc). El resultado
+final se podrá exportar como una página web estática e independiente, lista
+para subir a un servidor, sin depender del editor para funcionar ni poder ser
+modificada desde ahí una vez exportada.
+
+2. MÉTODO DE TRABAJO
+----------------------
+- Vanilla JS, HTML y CSS puro. Sin frameworks de terceros (React, Vue, etc);
+  se construye un "framework propio" a medida del proyecto.
+- Trabajo modular: cada tipo de bloque (imagen, texto, video, slider...) vive
+  en su propio archivo dentro de js/blocks/, para poder editarlo o ampliarlo
+  sin tocar el resto del motor.
+- Se desarrolla y prueba en VSCode + Microsoft Edge.
+- Los cambios se comunican en formato diff (qué archivo, qué código agregar
+  o modificar y en qué punto del archivo), respetando siempre el código ya
+  construido. No se tocan variables o métodos fuera del alcance de lo pedido.
+- Cada cambio importante sube el número de versión (ver sección 7) y queda
+  documentado en este reporte.
+- Responsive obligatorio en cada entrega: escritorio, tablet y celular.
+
+3. MODELO DE DATOS (JSON)
+----------------------------
+El estado completo del diseño vive en un árbol de nodos (js/core/state.js),
+única fuente de verdad. La interfaz del editor (bordes punteados, botones,
+panel de JSON) es solo una capa visual de edición; no forma parte del diseño
+final exportado.
+
+Nodo hoja (espacio sin dividir):
+{ id, direction: null, children: [], sizes: [], blockType: null }
+
+Nodo dividido:
+{ id, direction: 'row'|'column', children: [nodoA, nodoB], sizes: [50,50], blockType: null }
+
+- direction 'row'    = división lado a lado (columnas)
+- direction 'column' = división uno sobre otro (filas)
+- sizes              = porcentaje que ocupa cada hijo
+- blockType          = tipo de contenido de una hoja ('image'|'text'|'video'|'slider'|null)
+
+A futuro, cada blockType guardará también su contenido/configuración propia
+dentro del nodo (ej: src y alt en una imagen, contenido de un texto), porque
+de este mismo JSON va a salir directo el diseño exportado.
+
+4. ARQUITECTURA / ESTRUCTURA DE ARCHIVOS
+-------------------------------------------
+index.html         → estructura base del editor (barra superior, lienzo, panel JSON)
+css/style.css       → estilos del editor, con reglas responsive para tablet y celular
+js/core/state.js    → modelo de datos: árbol de nodos, splitNode / setBlockType / getStateJSON
+js/core/engine.js   → motor de render: dibuja el árbol en el DOM y conecta eventos de cada celda
+js/blocks/          → (en construcción) un archivo por tipo de bloque: image.js, text.js, video.js, slider.js...
+Report.txt          → este documento
+
+5. FUNCIONAMIENTO ACTUAL (v1.0.0)
+-------------------------------------
+- El lienzo arranca con un único espacio vacío.
+- Cada espacio (hoja del árbol) muestra, al pasar el mouse (o siempre en
+  tablet/celular), un selector de tipo de contenido y dos botones para
+  dividirlo: ↔ (en columnas) y ↕ (en filas).
+- Cada división es proporcional (50/50 por defecto) y puede volver a
+  dividirse indefinidamente, generando una estructura anidada.
+- Botón "Ver JSON" en la barra superior: abre un panel lateral con el estado
+  completo del árbol en tiempo real.
+- El selector de tipo de contenido por ahora solo guarda la etiqueta (Vacío /
+  Imagen / Texto / Video / Slider) en el nodo; todavía no renderiza el bloque
+  real.
+- Responsive: en tablet los controles quedan siempre visibles (no depende de
+  hover); en celular, las divisiones en columnas se apilan verticalmente.
+
+6. PENDIENTE / PRÓXIMOS PASOS PLANEADOS
+-------------------------------------------
+- Módulos de bloque en js/blocks/ (imagen, texto, video, slider) con su
+  contenido y configuración propia.
+- Persistencia del contenido de cada bloque dentro del nodo JSON.
+- Exportador: recorre el árbol y genera HTML/CSS estático, independiente del
+  editor, listo para subir a un servidor sin posibilidad de edición posterior.
+- Posible edición manual de proporciones de cada división (hoy fijo en 50/50).
+
+7. HISTORIAL DE VERSIONES
+-----------------------------
+v1.0.0 — 28/08/2026
+  Se agrega:
+    - Estructura base del proyecto (index.html, style.css, state.js, engine.js).
+    - Modelo de datos en árbol (JSON) para representar el diseño.
+    - División proporcional de contenedores en columnas o filas, ilimitada y anidable.
+    - Selector de tipo de espacio por celda (Vacío/Imagen/Texto/Video/Slider), sin render de contenido aún.
+    - Panel de debug "Ver JSON" con el estado en vivo.
+    - Responsive para escritorio, tablet y celular.
+  Se mejora:
+    - (primera versión, sin cambios previos)
+  Se elimina:
+    - (primera versión, sin cambios previos)
