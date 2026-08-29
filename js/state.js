@@ -20,9 +20,23 @@ function createLeaf() {
 }
 
 export const state = {
-  root: createLeaf()
+  root: null
 };
+export function createGrid(cols, rows) {
+  const total = cols * rows;
+  const children = [];
+  for (let i = 0; i < total; i++) children.push(createLeaf());
 
+  state.root = {
+    id: generateId(),
+    direction: 'grid',
+    cols,
+    rows,
+    children,
+    sizes: [],
+    blockType: null
+  };
+}
 export function findNode(node, id) {
   if (node.id === id) return node;
   for (const child of node.children) {

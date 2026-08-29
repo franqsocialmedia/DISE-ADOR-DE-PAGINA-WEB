@@ -184,3 +184,103 @@ body {
   .cell { min-height: 100px; padding: 10px; }
   .json-panel { width: 100%; }
 }
+/* Estado vacío del lienzo */
+.canvas-empty {
+  margin: auto;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Grid dinámico */
+.split-grid {
+  display: grid;
+  gap: 10px;
+}
+
+/* Botón insertar + menú */
+.insert-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.insert-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.insert-menu {
+  display: none;
+  gap: 6px;
+  margin-top: 8px;
+}
+.insert-menu.open {
+  display: flex;
+}
+.insert-option {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.insert-option:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Modal crear grid */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.modal input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.primary-btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  cursor: pointer;
+}

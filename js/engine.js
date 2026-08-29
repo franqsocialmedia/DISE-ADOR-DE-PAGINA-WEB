@@ -1,7 +1,7 @@
 // engine.js
 // Renderiza el árbol de state.js en el DOM y conecta los controles de cada celda.
 
-import { state, splitNode, setBlockType, getStateJSON } from './state.js';
+import { state, splitNode, setBlockType, getStateJSON, createGrid } from './state.js';
 
 const BLOCK_TYPES = [
   { value: '', label: 'Vacío' },
@@ -15,17 +15,41 @@ const canvas = document.getElementById('canvas');
 const jsonOutput = document.getElementById('json-output');
 const jsonPanel = document.getElementById('json-panel');
 const toggleJsonBtn = document.getElementById('toggle-json');
+const createGridBtn = document.getElementById('create-grid');
 
 export function render() {
   canvas.innerHTML = '';
-  canvas.appendChild(renderNode(state.root));
+  if (!state.root) {
+    canvas.appendChild(renderEmptyState());
+  } else {
+    canvas.appendChild(renderNode(state.root));
+  }
   if (jsonPanel.classList.contains('open')) {
     jsonOutput.textContent = getStateJSON();
   }
 }
 
+function renderEmptyState() {
+  const empty = document.createElement('div');
+  empty.className = 'canvas-empty';
+  empty.textContent = 'Creá tu grid para empezar (botón "+ Grid")';
+  return empty;
+}
+
 function renderNode(node) {
-  return node.children.length === 0 ? renderLeaf(node) : renderSplit(node);
+  if (node.children.length === 0) return renderLeaf(node);
+  return node.direction === 'grid' ? renderGrid(node) : renderSplit(node);
+}
+
+function renderGrid(node) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'split split-grid';
+  wrapper.style.gridTemplateColumns = `repeat(${node.cols}, 1fr)`;
+  wrapper.style.gridTemplateRows = `repeat(${node.rows}, 1fr)`;
+  node.children.forEach((child) => {
+    wrapper.appendChild(renderNode(child));
+  });
+  return wrapper;
 }
 
 function renderSplit(node) {
@@ -47,18 +71,28 @@ function renderLeaf(node) {
   const controls = document.createElement('div');
   controls.className = 'cell-controls';
 
-  const select = document.createElement('select');
-  select.className = 'type-select';
-  BLOCK_TYPES.forEach((opt) => {
-    const optionEl = document.createElement('option');
-    optionEl.value = opt.value;
-    optionEl.textContent = opt.label;
-    optionEl.selected = (node.blockType || '') === opt.value;
-    select.appendChild(optionEl);
-  });
-  select.addEventListener('change', (e) => {
-    setBlockType(node.id, e.target.value);
-    render();
+  const insertBtn = document.createElement('button');
+  insertBtn.type = 'button';
+  insertBtn.className = 'insert-btn';
+  insertBtn.textContent = 'Insertar';
+
+  const insertMenu = document.createElement('div');
+  insertMenu.className = 'insert-menu';
+
+  const textBtn = document.createElement('button');
+  textBtn.type = 'button';
+  textBtn.className = 'insert-option';
+  textBtn.textContent = 'Texto';
+
+  const imageBtn = document.createElement('button');
+  imageBtn.type = 'button';
+  imageBtn.className = 'insert-option';
+  imageBtn.textContent = 'Imagen';
+
+  insertMenu.append(textBtn, imageBtn);
+
+  insertBtn.addEventListener('click', () => {
+    insertMenu.classList.toggle('open');
   });
 
   const splitColsBtn = document.createElement('button');
@@ -81,15 +115,9 @@ function renderLeaf(node) {
     render();
   });
 
-  controls.append(select, splitColsBtn, splitRowsBtn);
+  controls.append(insertBtn, splitColsBtn, splitRowsBtn);
 
-  const label = document.createElement('span');
-  label.className = 'cell-label';
-  label.textContent = node.blockType
-    ? BLOCK_TYPES.find((t) => t.value === node.blockType).label
-    : 'Vacío';
-
-  cell.append(controls, label);
+  cell.append(controls, insertMenu);
   return cell;
 }
 
@@ -99,5 +127,58 @@ toggleJsonBtn.addEventListener('click', () => {
     jsonOutput.textContent = getStateJSON();
   }
 });
+createGridBtn.addEventListener('click', openGridModal);
 
+function openGridModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Crear grid';
+
+  const colsLabel = document.createElement('label');
+  colsLabel.textContent = 'Columnas';
+  const colsInput = document.createElement('input');
+  colsInput.type = 'number';
+  colsInput.min = '1';
+  colsInput.value = '2';
+  colsLabel.appendChild(colsInput);
+
+  const rowsLabel = document.createElement('label');
+  rowsLabel.textContent = 'Filas';
+  const rowsInput = document.createElement('input');
+  rowsInput.type = 'number';
+  rowsInput.min = '1';
+  rowsInput.value = '1';
+  rowsLabel.appendChild(rowsInput);
+
+  const actions = document.createElement('div');
+  actions.className = 'modal-actions';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'ghost-btn';
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.type = 'button';
+  confirmBtn.className = 'primary-btn';
+  confirmBtn.textContent = 'Crear';
+  confirmBtn.addEventListener('click', () => {
+    const cols = Math.max(1, parseInt(colsInput.value, 10) || 1);
+    const rows = Math.max(1, parseInt(rowsInput.value, 10) || 1);
+    createGrid(cols, rows);
+    render();
+    overlay.remove();
+  });
+
+  actions.append(cancelBtn, confirmBtn);
+  modal.append(title, colsLabel, rowsLabel, actions);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
 render();
