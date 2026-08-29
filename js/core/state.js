@@ -62,7 +62,36 @@ export function setBlockType(nodeId, type) {
   if (!node) return;
   node.blockType = type || null;
 }
+export function deleteNode(nodeId) {
+  if (state.root && state.root.id === nodeId) {
+    state.root = null;
+    return;
+  }
+  const result = findParentOf(state.root, nodeId);
+  if (!result) return;
 
+  const { parent, index } = result;
+  parent.children.splice(index, 1);
+  if (parent.sizes.length) parent.sizes.splice(index, 1);
+
+  // Si un split (row/column) queda con un solo hijo, se colapsa en ese hijo
+  if (parent.direction !== 'grid' && parent.children.length === 1) {
+    const remaining = parent.children[0];
+    parent.direction = remaining.direction;
+    parent.children = remaining.children;
+    parent.sizes = remaining.sizes;
+    parent.blockType = remaining.blockType;
+  }
+}
+
+function findParentOf(node, id) {
+  for (const child of node.children) {
+    if (child.id === id) return { parent: node, index: node.children.indexOf(child) };
+    const found = findParentOf(child, id);
+    if (found) return found;
+  }
+  return null;
+}
 export function getStateJSON() {
   return JSON.stringify(state.root, null, 2);
 }

@@ -1,7 +1,7 @@
 // engine.js
 // Renderiza el árbol de state.js en el DOM y conecta los controles de cada celda.
 
-import { state, splitNode, setBlockType, getStateJSON, createGrid } from './state.js';
+import { state, splitNode, setBlockType, getStateJSON, createGrid, deleteNode } from './state.js';
 
 const BLOCK_TYPES = [
   { value: '', label: 'Vacío' },
@@ -89,7 +89,11 @@ function renderLeaf(node) {
   imageBtn.className = 'insert-option';
   imageBtn.textContent = 'Imagen';
 
-  insertMenu.append(textBtn, imageBtn);
+    const moveBtn = document.createElement('button');
+  moveBtn.type = 'button';
+  moveBtn.className = 'insert-option';
+  moveBtn.textContent = 'Mover';
+  insertMenu.append(textBtn, imageBtn, moveBtn);
 
   insertBtn.addEventListener('click', () => {
     insertMenu.classList.toggle('open');
@@ -116,8 +120,16 @@ function renderLeaf(node) {
   });
 
   controls.append(insertBtn, splitColsBtn, splitRowsBtn);
-
-  cell.append(controls, insertMenu);
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.title = 'Eliminar';
+  deleteBtn.textContent = '×';
+  deleteBtn.addEventListener('click', () => {
+    deleteNode(node.id);
+    render();
+  });
+  cell.append(controls, insertMenu, deleteBtn);
   return cell;
 }
 

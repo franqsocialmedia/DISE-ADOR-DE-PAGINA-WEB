@@ -284,3 +284,32 @@ body {
   font-size: 13px;
   cursor: pointer;
 }
+
+/* Botón eliminar celda (sutil) */
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, color .15s;
+}
+.cell:hover .delete-btn,
+.cell:focus-within .delete-btn {
+  opacity: .6;
+}
+.delete-btn:hover {
+  opacity: 1;
+  color: #e5484d;
+}
+
+@media (max-width: 1024px) {
+  .delete-btn { opacity: .6; }
+}
